@@ -31,9 +31,9 @@ resource "aws_instance" "jenkins" {
   user_data       = file("scripts/jenkins_install.sh")
   provisioner "remote-exec" {
         inline = [
-                "echo '${tls_private_key.example.private_key_pem}' > /home/ec2-user/.ssh/instance_key",
-                "chmod 777 /home/ec2-user/.ssh/instance_key",
-                "chown ec2-user:ec2-user /home/ec2-user/.ssh/instance_key"
+                "echo '${tls_private_key.example.private_key_pem}' > /var/lib/jenkins/instance_key",
+                "chmod 777 /var/lib/jenkins/instance_key",
+                "chown ec2-user:ec2-user /var/lib/jenkins/instance_key"
         ]
         connection {
                 type = "ssh"
