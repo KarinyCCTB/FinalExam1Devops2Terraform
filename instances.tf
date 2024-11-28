@@ -4,6 +4,7 @@ resource "aws_instance" "web1" {
   subnet_id     = aws_subnet.main_a.id
   security_groups = [aws_security_group.web_sg.id]
   key_name        = var.key_name
+  user_data       = file("scripts/setup_instances.sh")
   tags = {
     Name = "Production1"
   }
@@ -15,6 +16,7 @@ resource "aws_instance" "web2" {
   subnet_id     = aws_subnet.main_b.id
   security_groups = [aws_security_group.web_sg.id]
   key_name        = var.key_name
+  user_data       = file("scripts/setup_instances.sh")                                                                                            
   tags = {
     Name = "Production2"
   }
@@ -27,6 +29,19 @@ resource "aws_instance" "jenkins" {
   security_groups = [aws_security_group.web_sg.id]
   key_name        = var.key_name
   user_data       = file("scripts/jenkins_install.sh")
+  provisioner "remote-exec" {
+        inline = [
+                "echo '${tls_private_key.example.private_key_pem}' > /var/lib/jenkins/workspace/instance_key",
+                "chmod 777 /var/lib/jenkins/workspace/instance_key",
+                "chown ec2-user:ec2-user /var/lib/jenkins/workspace/instance_key"
+        ]
+        connection {
+                type = "ssh"
+                user = "ec2-user"
+                private_key = tls_private_key.example.private_key_pem
+                host = aws_instance.jenkins.public_ip
+        } 
+  }
 
   root_block_device {
      volume_size = 20      # Size in GiB
@@ -44,6 +59,7 @@ resource "aws_instance" "testing" {
   subnet_id     = aws_subnet.main_b.id
   security_groups = [aws_security_group.web_sg.id]
   key_name        = var.key_name
+  user_data       = file("scripts/setup_instances.sh")                                                                                                                                               
   tags = {
     Name = "Testing"
   }
@@ -55,6 +71,7 @@ resource "aws_instance" "staging" {
   subnet_id     = aws_subnet.main_a.id
   security_groups = [aws_security_group.web_sg.id]
   key_name        = var.key_name
+  user_data       = file("scripts/setup_instances.sh")                                                                                                                                               
   tags = {
     Name = "Staging"
   }
