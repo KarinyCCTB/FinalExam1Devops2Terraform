@@ -27,6 +27,12 @@ resource "aws_instance" "jenkins" {
   security_groups = [aws_security_group.web_sg.id]
   key_name        = var.key_name
   user_data       = file("scripts/jenkins_install.sh")
+
+  root_block_device {
+     volume_size = 20      # Size in GiB
+     volume_type = "gp3"   # General Purpose SSD 
+  }
+
   tags = {
     Name = "JenkinsController"
   }
